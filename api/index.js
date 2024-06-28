@@ -20,3 +20,13 @@ app.use('/api/auth', authRouter) // Mount userRouter under '/users' path
 app.listen(3000, () => {
     console.log(`Server running on port 3000`);
 });
+
+app.use((err, req, res, next) => {
+    const statuesCode = err.statuesCode || 500
+    const message = err.message || 'INTERNAL SERVER ERROR'
+    res.status(statuesCode).json({
+        success: false,
+        message,
+        statuesCode
+    })
+})
