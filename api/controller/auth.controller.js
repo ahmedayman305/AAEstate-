@@ -18,18 +18,30 @@ export const signup = async (req, res, next) => {
 };
 
 export const signin = async (req, res, next) => {
-    const { email, password } = req.body
+    const { email, password } = req.body;
     try {
-        const validUser = await User.findOne({ email })
-        if (!validUser) return next(errorHandler(404, 'User Not Found!'))
+        // Find the user by email
+        const validUser = await User.findOne({ email });
+        if (!validUser) {
+            return next(errorHandler(404, 'User Not Found!'));
+        }
+
+        // Compare passwords
         const validPassword = bcryptjs.compareSync(password, validUser.password);
-        if (!validPassword) return next(errorHandler(401, 'Wrong credentials'))
-        const token = jwt.sign({ id: validUser._id, name: 'userToken' }, process.env.JWT_SECRET)
-        const { password: pass, ...rest } = validUser._doc
-        res.cookie('access_token', token, { httpOnly: true })
-            .status(200)
-            .json(rest)
+        if (!validPassword) {
+            return next(errorHandler(401, 'Wrong credentials'));
+        }
+
+        // Generate JWT token
+        const token = jwt.sign({ id: validUser._id, name: 'userToken' }, process.env.JWT_SECRET);
+
+        // Exclude sensitive fields from response
+        const { password: pass, ...rest } = validUser._doc;
+
+        // Send user data and token in the response body
+        res.status(200).json({ user: rest, token });
     } catch (error) {
-        next(error)
+        next(error);
     }
+    console.log(res)
 };
