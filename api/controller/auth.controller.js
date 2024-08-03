@@ -48,7 +48,7 @@ export const signin = async (req, res, next) => {
         const { password: pass, ...rest } = validUser._doc;
 
         res.json({
-            ...rest,
+            user: rest,
             token: generateToken(validUser._id),
         });
     } catch (error) {
